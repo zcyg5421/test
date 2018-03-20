@@ -1,0 +1,24 @@
+diff --git a/libchronos/chronos.h b/libchronos/chronos.h
+index b3fe197..e3948ce 100644
+--- a/libchronos/chronos.h
++++ b/libchronos/chronos.h
+@@ -60,6 +60,7 @@
+ /* Scheduler - behaviors for each flag may or may not be defined */
+ #define SCHED_RT_FIFO 			0x0000
+ #define SCHED_RT_RMA 			0x0100
++#define SCHED_RT_EDF 			0x0200
+ #define SCHED_RT_GFIFO			0x8000
+ #define SCHED_RT_GRMA			0x8100
+ 
+diff --git a/sched_test_app/src/sched_algorithms.h b/sched_test_app/src/sched_algorithms.h
+index 6a6c711..af78158 100644
+--- a/sched_test_app/src/sched_algorithms.h
++++ b/sched_test_app/src/sched_algorithms.h
+@@ -39,6 +39,7 @@ struct algorithm {
+ static struct algorithm algorithms[] = {
+ 	{SCHED_RT_FIFO, "FIFO"},
+ 	{SCHED_RT_RMA, "RMA"},
++	{SCHED_RT_EDF, "EDF"},
+ 	{SCHED_RT_GFIFO, "GFIFO"},
+ 	{SCHED_RT_GRMA, "GRMA"},
+ };

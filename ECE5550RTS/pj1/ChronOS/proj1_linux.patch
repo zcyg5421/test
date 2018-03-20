@@ -1,0 +1,77 @@
+diff --git a/chronos/Makefile b/chronos/Makefile
+index 3cf6823..095e22c 100644
+--- a/chronos/Makefile
++++ b/chronos/Makefile
+@@ -8,4 +8,5 @@ obj-m += rma.o
+ obj-m += gfifo.o
+ obj-m += grma.o
+ obj-m += abort_shmem.o
++obj-m += edf.o
+ endif
+diff --git a/chronos/edf.c b/chronos/edf.c
+new file mode 100644
+index 0000000..d606b58
+--- /dev/null
++++ b/chronos/edf.c
+@@ -0,0 +1,49 @@
++/* chronos/edf.c
++ *
++ * EDF Single-Core Scheduler Module for ChronOS
++ *
++ * Author(s)
++ *	- Beichen Liu, bcliu430@vt.edu
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/chronos_types.h>
++#include <linux/chronos_sched.h>
++#include <linux/list.h>
++
++struct rt_info* sched_edf(struct list_head *head, int flags)
++{
++	struct rt_info *best = local_task(head->next);
++
++	if(flags & SCHED_FLAG_PI)
++		best = get_pi_task(best, head, flags);
++
++	return best;
++}
++
++struct rt_sched_local edf = {
++	.base.name = "EDF",
++	.base.id = SCHED_RT_EDF,
++	.flags = 0,
++	.schedule = sched_edf,
++	.base.sort_key = SORT_KEY_DEADLINE,
++	.base.list = LIST_HEAD_INIT(edf.base.list)
++};
++
++static int __init edf_init(void)
++{
++	return add_local_scheduler(&edf);
++}
++module_init(edf_init);
++
++static void __exit edf_exit(void)
++{
++	remove_local_scheduler(&edf);
++}
++module_exit(edf_exit);
++
++MODULE_DESCRIPTION("EDF Single-Core Scheduling Module for ChronOS");
++MODULE_AUTHOR("Beichen Liu <bcliu430@vt.edu>");
++MODULE_LICENSE("GPL");
++
+diff --git a/include/linux/chronos_types.h b/include/linux/chronos_types.h
+index 67a8734..1e943c6 100644
+--- a/include/linux/chronos_types.h
++++ b/include/linux/chronos_types.h
+@@ -44,6 +44,7 @@
+ /* Scheduler - behaviors for each flag may or may not be defined */
+ #define SCHED_RT_FIFO 			0x00
+ #define SCHED_RT_RMA 			0x01
++#define SCHED_RT_EDF            0x02
+ #define SCHED_RT_FIFO_RA		0x07
+ #define SCHED_RT_GFIFO			0x80
+ #define SCHED_RT_GRMA			0x81
